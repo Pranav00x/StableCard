@@ -24,17 +24,8 @@ class AuthInterceptor @Inject constructor(
         val response = chain.proceed(requestBuilder.build())
 
         if (response.code == 401) {
-            response.close()
-            val refreshed = runBlocking { tokenStore.tryRefreshTokens() }
-            if (refreshed) {
-                val newAccessToken = runBlocking { tokenStore.getAccessToken() }
-                val retriedRequest = original.newBuilder().apply {
-                    if (!newAccessToken.isNullOrBlank()) {
-                        header("Authorization", "Bearer $newAccessToken")
-                    }
-                }.build()
-                return chain.proceed(retriedRequest)
-            }
+            // Unauthorized – clear any stored tokens so app can force re-login.
+            runBlocking { tokenStore.clear() }
         }
 
         return response
