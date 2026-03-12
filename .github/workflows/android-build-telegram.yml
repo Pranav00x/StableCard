@@ -31,7 +31,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: stable-app-release-apk
-          path: app/build/outputs/apk/release/app-release.apk
+          # Use a wildcard to match the actual release APK filename
+          # (e.g., app-release.apk or app-release-unsigned.apk).
+          path: app/build/outputs/apk/release/*.apk
 
       - name: Send APK to Telegram (best-effort)
         env:
